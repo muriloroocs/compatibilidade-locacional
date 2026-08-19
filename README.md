@@ -1,0 +1,1 @@
+# compatibilidade-locacional
