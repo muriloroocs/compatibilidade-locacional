@@ -207,6 +207,19 @@ function parseNumero(v) {
   return isNaN(n) ? null : n;
 }
 
+// Máscara da inscrição imobiliária de Campo Grande: XX.XX.XXX.XXX-X (11 dígitos).
+// Formata progressivamente enquanto o usuário digita, ignorando qualquer caractere não numérico.
+function maskInscricaoImobiliaria(raw) {
+  const digits = (raw || '').replace(/\D/g, '').slice(0, 11);
+  const p = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 7), digits.slice(7, 10), digits.slice(10, 11)];
+  let out = p[0];
+  if (p[1]) out += '.' + p[1];
+  if (p[2]) out += '.' + p[2];
+  if (p[3]) out += '.' + p[3];
+  if (p[4]) out += '-' + p[4];
+  return out;
+}
+
 /**
  * Motor de conformidade. Recebe os dados informados no formulário e
  * retorna { status, motivo }. Baseado nos dados reais dos dois anexos:
@@ -931,11 +944,11 @@ function CertidaoDocument({ data, compact }) {
 /* =========================================================================
    MODAL: ADICIONAR TERRENO
    ========================================================================= */
-function MiniField({ label, value, onChange, placeholder }) {
+function MiniField({ label, value, onChange, placeholder, inputMode, maxLength }) {
   return (
     <div>
       <label className="block text-[10.5px] font-semibold text-slate-500 tracking-wide uppercase mb-1">{label}</label>
-      <input value={value} onChange={onChange} placeholder={placeholder}
+      <input value={value} onChange={onChange} placeholder={placeholder} inputMode={inputMode} maxLength={maxLength}
         className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition" />
     </div>
   );
@@ -1083,7 +1096,7 @@ function AddTerrenoModal({ processIndex, onClose, onSave }) {
               <MiniField label="Endereço (frente para)" value={endereco} onChange={(e) => setEndereco(e.target.value)} placeholder="Ex.: Rua Alagoas" />
               <MiniField label="Bairro" value={bairro} onChange={(e) => setBairro(e.target.value)} placeholder="Ex.: Jardim dos Estados" />
               <MiniField label="Parcelamento" value={parcelamento} onChange={(e) => setParcelamento(e.target.value)} placeholder="Ex.: São Jorge" />
-              <MiniField label="Inscrição imobiliária" value={inscricao} onChange={(e) => setInscricao(e.target.value)} placeholder="Ex.: 05.48.004.013-0" />
+              <MiniField label="Inscrição imobiliária" value={inscricao} onChange={(e) => setInscricao(maskInscricaoImobiliaria(e.target.value))} placeholder="Ex.: 05.48.004.013-0" inputMode="numeric" maxLength={15} />
               <MiniField label="Matrícula" value={matricula} onChange={(e) => setMatricula(e.target.value)} placeholder="Ex.: 205.236" />
               <MiniField label="C.R.I." value={cri} onChange={(e) => setCri(e.target.value)} placeholder="Ex.: 1º" />
             </div>
